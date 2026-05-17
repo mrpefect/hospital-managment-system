@@ -26,7 +26,7 @@ export async function GET() {
   // Check for existing profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('hospital_id')
+    .select('hospital_id, role')
     .eq('auth_user_id', user.id)
     .single()
 
@@ -45,7 +45,25 @@ export async function GET() {
   const status = hospital?.onboarding_status
 
   if (status === 'approved') {
-    return NextResponse.redirect(new URL('/app/dashboard', APP_URL))
+    const role = profile.role
+
+    if (role === 'doctor') {
+      return NextResponse.redirect(new URL('/doctor/dashboard', APP_URL))
+    }
+    if (role === 'receptionist') {
+      return NextResponse.redirect(new URL('/receptionist/dashboard', APP_URL))
+    }
+    if (role === 'lab_technician') {
+      return NextResponse.redirect(new URL('/lab/dashboard', APP_URL))
+    }
+    if (role === 'pharmacist') {
+      return NextResponse.redirect(new URL('/pharmacist/dashboard', APP_URL))
+    }
+    if (role === 'hospital_admin') {
+      return NextResponse.redirect(new URL('/app/dashboard', APP_URL))
+    }
+    // nurse, accountant, hr_manager, ward_boy, driver, other
+    return NextResponse.redirect(new URL('/staff-portal/dashboard', APP_URL))
   }
 
   if (status === 'suspended') {

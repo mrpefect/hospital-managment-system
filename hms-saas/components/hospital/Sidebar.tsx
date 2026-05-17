@@ -103,13 +103,7 @@ export function HospitalSidebar({ profile, hospital, onClose }: Props) {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-5">
         {NAV.map((section) => (
-          <div key={section.label}>
-            <p
-              className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
-            >
-              {section.label}
-            </p>
+          <div key={section.label} className='mb-0'>
             <ul className="space-y-0.5">
               {section.items.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(item.href + '/')

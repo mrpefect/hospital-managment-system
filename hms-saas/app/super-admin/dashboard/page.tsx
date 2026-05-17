@@ -147,7 +147,7 @@ export default async function SuperAdminDashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4" >
         {STAT_CARDS.map((card) => (
           <div
             key={card.label}

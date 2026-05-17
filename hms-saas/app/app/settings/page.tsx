@@ -270,13 +270,13 @@ export default async function SettingsPage() {
         )}
 
         <div className="mt-5 flex justify-end">
-          <button
-            type="button"
+          <Link
+            href="/app/settings/edit"
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
           >
             Edit Information
             <ChevronRight className="h-4 w-4" />
-          </button>
+          </Link>
         </div>
       </SectionCard>
 
@@ -413,13 +413,13 @@ export default async function SettingsPage() {
           <p className="text-xs text-slate-400">
             Need to update your password?
           </p>
-          <button
-            type="button"
+          <Link
+            href="/app/settings/password"
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
           >
             Change Password
             <ChevronRight className="h-4 w-4" />
-          </button>
+          </Link>
         </div>
       </SectionCard>
 

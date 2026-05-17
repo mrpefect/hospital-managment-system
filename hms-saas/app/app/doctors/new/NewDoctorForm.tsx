@@ -1,11 +1,97 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createDoctor } from '../actions'
 import { toast } from 'sonner'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, CheckCircle2, Copy, Check, UserPlus } from 'lucide-react'
 import Link from 'next/link'
+
+interface Credentials { name: string; email: string; password: string }
+
+function CredentialsCard({ creds, onAddAnother }: { creds: Credentials; onAddAnother: () => void }) {
+  const [copied, setCopied] = useState(false)
+
+  function copy() {
+    const text = `HMS Doctor Login Credentials\nName: ${creds.name}\nRole: Doctor\nLogin URL: ${window.location.origin}/login\nEmail: ${creds.email}\nTemporary Password: ${creds.password}\n\nPlease change your password after first login.`
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+    toast.success('Credentials copied to clipboard')
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-5">
+        <CheckCircle2 className="h-8 w-8 text-green-500 shrink-0" />
+        <div>
+          <p className="font-bold text-green-800" style={{ fontFamily: 'var(--font-lato)' }}>
+            Doctor account created!
+          </p>
+          <p className="text-sm text-green-600 mt-0.5">
+            Share these credentials with <span className="font-semibold">Dr. {creds.name}</span>.
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-slate-100"
+          style={{ background: 'linear-gradient(135deg, #038bbf0d, #00437b0d)' }}>
+          <p className="text-sm font-bold text-slate-700" style={{ fontFamily: 'var(--font-lato)' }}>Login Credentials</p>
+          <p className="text-xs text-slate-400 mt-0.5">Share these with the doctor privately</p>
+        </div>
+        <div className="p-5 space-y-4">
+          {[
+            { label: 'Name',               value: creds.name },
+            { label: 'Role',               value: 'Doctor' },
+            { label: 'Login URL',          value: `${typeof window !== 'undefined' ? window.location.origin : ''}/login` },
+            { label: 'Email',              value: creds.email },
+            { label: 'Temporary Password', value: creds.password, mono: true, highlight: true },
+          ].map(row => (
+            <div key={row.label} className="flex items-center gap-4">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide w-36 shrink-0">{row.label}</span>
+              <span className={`flex-1 text-sm ${row.mono ? 'font-mono' : ''} ${row.highlight ? 'font-bold text-[#038bbf] bg-[#038bbf]/8 px-2.5 py-1 rounded-lg' : 'text-slate-700'}`}>
+                {row.value}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="px-5 pb-5">
+          <button
+            onClick={copy}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all border"
+            style={copied
+              ? { background: '#d1fae5', borderColor: '#6ee7b7', color: '#059669' }
+              : { background: 'linear-gradient(135deg, #038bbf, #00437b)', borderColor: 'transparent', color: '#fff' }
+            }
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? 'Copied!' : 'Copy Credentials'}
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        The doctor must change their password after the first login.
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onAddAnother}
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          <UserPlus className="h-4 w-4" /> Add Another
+        </button>
+        <Link
+          href="/app/doctors"
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(135deg, #038bbf, #00437b)' }}
+        >
+          Go to Doctors
+        </Link>
+      </div>
+    </div>
+  )
+}
 
 const inputClass =
   'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-[#038bbf] focus:ring-2 focus:ring-[#038bbf]/20 transition'
@@ -22,8 +108,8 @@ const SPECIALIZATIONS = [
 ]
 
 export function NewDoctorForm() {
-  const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [creds, setCreds]   = useState<Credentials | null>(null)
 
   const [form, setForm] = useState({
     full_name: '',
@@ -42,16 +128,21 @@ export function NewDoctorForm() {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
+  function resetForm() {
+    setForm({ full_name: '', email: '', phone: '', specialization: '', qualification: '', registration_number: '', years_of_experience: '', consultation_fee: '', consultation_duration_min: '20', bio: '' })
+    setCreds(null)
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.full_name.trim()) { toast.error('Doctor name is required'); return }
-    if (!form.email.trim()) { toast.error('Email is required'); return }
-    if (!form.specialization) { toast.error('Specialization is required'); return }
-    if (!form.consultation_fee) { toast.error('Consultation fee is required'); return }
+    if (!form.full_name.trim())   { toast.error('Doctor name is required'); return }
+    if (!form.email.trim())       { toast.error('Email is required'); return }
+    if (!form.specialization)     { toast.error('Specialization is required'); return }
+    if (!form.consultation_fee)   { toast.error('Consultation fee is required'); return }
 
     setSaving(true)
     try {
-      await createDoctor({
+      const result = await createDoctor({
         full_name:                form.full_name.trim(),
         email:                    form.email.trim(),
         phone:                    form.phone || undefined,
@@ -63,14 +154,15 @@ export function NewDoctorForm() {
         consultation_duration_min: parseInt(form.consultation_duration_min, 10) || 20,
         bio:                      form.bio || undefined,
       })
-      toast.success(`Dr. ${form.full_name} added successfully`)
-      router.push('/app/doctors')
+      setCreds({ name: form.full_name, email: form.email, password: result.tempPassword })
     } catch (err: any) {
       toast.error(err.message ?? 'Failed to add doctor')
     } finally {
       setSaving(false)
     }
   }
+
+  if (creds) return <CredentialsCard creds={creds} onAddAnother={resetForm} />
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

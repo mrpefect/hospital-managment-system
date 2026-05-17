@@ -39,9 +39,10 @@ export async function createDoctor(data: {
   const admin = createAdminClient()
 
   // 1. Create auth user with a random password; email already confirmed
+  const tempPassword = generatePassword()
   const { data: authData, error: authError } = await admin.auth.admin.createUser({
     email: data.email.trim().toLowerCase(),
-    password: generatePassword(),
+    password: tempPassword,
     email_confirm: true,
     user_metadata: { full_name: data.full_name.trim() },
   })
@@ -95,5 +96,5 @@ export async function createDoctor(data: {
   }
 
   revalidatePath('/app/doctors')
-  return { profileId: newProfile.id, doctorId: newDoctor.id }
+  return { profileId: newProfile.id, doctorId: newDoctor.id, tempPassword }
 }

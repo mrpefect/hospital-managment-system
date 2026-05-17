@@ -26,5 +26,5 @@ export async function GET(req: NextRequest) {
     .order('full_name', { ascending: true })
     .limit(10)
 
-  return NextResponse.json(data ?? [])
+  return NextResponse.json({ patients: data ?? [] })
 }

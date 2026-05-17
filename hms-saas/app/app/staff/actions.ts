@@ -70,5 +70,5 @@ export async function createStaffMember(data: {
   }
 
   revalidatePath('/app/staff')
-  return { profileId: newProfile.id }
+  return { profileId: newProfile.id, tempPassword }
 }

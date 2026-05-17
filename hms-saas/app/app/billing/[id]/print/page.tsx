@@ -291,7 +291,7 @@ export default async function PrintInvoicePage({ params }: { params: Promise<{ i
         `}</style>
       </head>
       <body>
-        <button className="print-btn" onClick="window.print()">🖨 Print</button>
+        <button className="print-btn" onClick={() => window.print()}>🖨 Print</button>
 
         <div className="page">
           {/* Header */}
